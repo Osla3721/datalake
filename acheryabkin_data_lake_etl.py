@@ -82,9 +82,9 @@ dm_bytes_received = DataProcHiveOperator(
     task_id='dm_bytes_received',
     dag=dag,
     query="""
-        INSERT OVERWRITE TABLE ashanin.dm_bytes_received PARTITION (year='{{ execution_date.year }}') 
+        INSERT OVERWRITE TABLE acheryabkin.dm_bytes_received PARTITION (year='{{ execution_date.year }}') 
         SELECT user_id, max(bytes_received), min(bytes_received), cast(avg(bytes_received) as INT) 
-        FROM ashanin.ods_traffic 
+        FROM acheryabkin.ods_traffic 
         WHERE `year` = '{{ execution_date.year }}' 
         GROUP BY user_id;
     """,
