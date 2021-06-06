@@ -1,6 +1,5 @@
 from datetime import timedelta, datetime
 from random import randint
-
 from airflow import DAG
 from airflow.operators.postgres_operator import PostgresOperator
 from airflow.operators.dummy_operator import DummyOperator
@@ -16,15 +15,14 @@ SQL_CONTEXT = {
                       district,
                       extract(year from registered_at) as registration_year,
                       is_vip,
-                      extract(year from to_date(BILLING_PERIOD_KEY, 'YYYY-MM')) as billing_year,
-                      sum as billing_sum
+                      extract(year from to_date(BILLING_PERIOD_KEY, 'YYYY-MM')) as billing_year
                 from acheryabkin.diplom_dds_link_user_account_billing_pay luabp 
                 join acheryabkin.diplom_dds_hub_billing_period hbp on luabp.BILLING_PERIOD_PK = hbp.BILLING_PERIOD_PK
                 join acheryabkin.diplom_dds_hub_user hu  on luabp.USER_PK = hu.USER_PK
                 left join acheryabkin.diplom_ods_mdm_users sumd on  hu.user_key = sumd.id::text
                 where extract(year from to_date(BILLING_PERIOD_KEY, 'YYYY-MM')) = {{ execution_date.year }}			
               )		
-              select billing_year, legal_type, district, registration_year, is_vip, sum(billing_sum)
+              select billing_year, legal_type, district, registration_year, is_vip
               from raw_data
               group by billing_year, legal_type, district, registration_year, is_vip
               order by billing_year, legal_type, district, registration_year, is_vip
