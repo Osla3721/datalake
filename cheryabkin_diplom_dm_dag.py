@@ -13,9 +13,10 @@ SQL_CONTEXT = {
                 select 
                       legal_type,
                       district,
-                      cast(extract(year from registered_at) as text) as registration_year,
+                      extract(year from registered_at)  as registration_year,
                       is_vip,
-                      cast(extract(year from to_date(BILLING_PERIOD_KEY, 'YYYY-MM')) as text) as billing_year
+                      sum as billing_sum,
+                      extract(year from to_date(BILLING_PERIOD_KEY, 'YYYY-MM'))  as billing_year
                 from acheryabkin.diplom_dds_link_user_account_billing_pay luabp 
                 join acheryabkin.diplom_dds_hub_billing_period hbp on luabp.BILLING_PERIOD_PK = hbp.BILLING_PERIOD_PK
                 join acheryabkin.diplom_dds_sat_pay_details ddspd on luabp.user_account_billing_pay_pk  =  ddspd.user_account_billing_pay_pk
@@ -23,7 +24,7 @@ SQL_CONTEXT = {
                 left join acheryabkin.diplom_ods_mdm_users sumd on  hu.user_key = sumd.id::text
                 where extract(year from to_date(BILLING_PERIOD_KEY, 'YYYY-MM')) = {{ execution_date.year }}			
               )		
-              select billing_year, legal_type, district, registration_year, is_vip
+              select billing_year, legal_type, district, registration_year, is_vip, sum(billing_sum)
               from raw_data
               group by billing_year, legal_type, district, registration_year, is_vip
               order by billing_year, legal_type, district, registration_year, is_vip
@@ -34,7 +35,7 @@ SQL_CONTEXT = {
                     insert into acheryabkin.diplom_payment_report_dim_billing_year(billing_year_key)
                     select distinct billing_year as billing_year_key 
                     from acheryabkin.diplom_payment_report_tmp_{{ execution_date.year }} a
-                    left join acheryabkin.diplom_payment_report_dim_billing_year b on b.billing_year_key = a.billing_year
+                    left join acheryabkin.diplom_payment_report_dim_billing_year b on b.billing_year_key = a.billing_year::text
                     where b.billing_year_key is null;
             """,
             'DIM_LEGAL_TYPE':  """
@@ -55,7 +56,7 @@ SQL_CONTEXT = {
                     insert into acheryabkin.diplom_payment_report_dim_registration_year(registration_year_key)
                     select distinct registration_year as registration_year_key 
                     from acheryabkin.diplom_payment_report_tmp_{{ execution_date.year }} a
-                    left join acheryabkin.diplom_payment_report_dim_registration_year b on b.registration_year_key = a.registration_year
+                    left join acheryabkin.diplom_payment_report_dim_registration_year b on b.registration_year_key = a.registration_year:::text
                     where b.registration_year_key is null;
             """},
     'FACTS': {
