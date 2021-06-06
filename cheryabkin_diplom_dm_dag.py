@@ -21,7 +21,7 @@ SQL_CONTEXT = {
                 from acheryabkin.diplom_dds_link_user_account_billing_pay luabp 
                 join acheryabkin.diplom_dds_hub_billing_period hbp on luabp.BILLING_PERIOD_PK = hbp.BILLING_PERIOD_PK
                 join acheryabkin.diplom_dds_hub_user hu  on luabp.USER_PK = hu.USER_PK
-                left join acheryabkin.diplom_ods_mdm_users sumd on  hu.user_key = sumd.id
+                left join acheryabkin.diplom_ods_mdm_users sumd on  hu.user_key = sumd.id::text
                 where extract(year from to_date(BILLING_PERIOD_KEY, 'YYYY-MM')) = {{ execution_date.year }}			
               )		
               select billing_year, legal_type, district, registration_year, is_vip, sum(billing_sum)
