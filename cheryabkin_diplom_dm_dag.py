@@ -8,7 +8,7 @@ from airflow.operators.dummy_operator import DummyOperator
 
 SQL_CONTEXT = {
     'LOAD_PAYMENT_REPORT_TMP_ONE_YEAR': """
-           create table acheryabkin.diplom_payment_report_tmp_{{ execution_date.year }} as
+           create table acheryabkin.diplom1_payment_report_tmp_{{ execution_date.year }} as
               with raw_data as (
                 select 
                       legal_type,
@@ -34,29 +34,29 @@ SQL_CONTEXT = {
             'DIM_BILLING_YEAR':  """      
                     insert into acheryabkin.diplom_payment_report_dim_billing_year(billing_year_key)
                     select distinct billing_year as billing_year_key 
-                    from acheryabkin.diplom_payment_report_tmp_{{ execution_date.year }} a
-                    left join acheryabkin.diplom_payment_report_dim_billing_year b on b.billing_year_key = a.billing_year::text
+                    from acheryabkin.diplom1_payment_report_tmp_{{ execution_date.year }} a
+                    left join acheryabkin.diplom_payment_report_dim_billing_year b on b.billing_year_key = a.billing_year
                     where b.billing_year_key is null;
             """,
             'DIM_LEGAL_TYPE':  """
                     insert into acheryabkin.diplom_payment_report_dim_legal_type(legal_type_key)
                     select distinct legal_type as legal_type_key 
-                    from acheryabkin.diplom_payment_report_tmp_{{ execution_date.year }} a
+                    from acheryabkin.diplom1_payment_report_tmp_{{ execution_date.year }} a
                     left join acheryabkin.diplom_payment_report_dim_legal_type b on b.legal_type_key = a.legal_type
                     where b.legal_type_key is null;
             """,
             'DIM_DISTRICT':  """
                     insert into acheryabkin.diplom_payment_report_dim_district(district_key)
                     select distinct district as district_key 
-                    from acheryabkin.diplom_payment_report_tmp_{{ execution_date.year }} a
+                    from acheryabkin.diplom1_payment_report_tmp_{{ execution_date.year }} a
                     left join acheryabkin.diplom_payment_report_dim_district b on b.district_key = a.district
                     where b.district_key is null;
             """,
             'DIM_REGISTRATION_YEAR':  """
                     insert into acheryabkin.diplom_payment_report_dim_registration_year(registration_year_key)
                     select distinct registration_year as registration_year_key 
-                    from acheryabkin.diplom_payment_report_tmp_{{ execution_date.year }} a
-                    left join acheryabkin.diplom_payment_report_dim_registration_year b on b.registration_year_key = a.registration_year:::text
+                    from acheryabkin.diplom1_payment_report_tmp_{{ execution_date.year }} a
+                    left join acheryabkin.diplom_payment_report_dim_registration_year b on b.registration_year_key = a.registration_year::text
                     where b.registration_year_key is null;
             """},
     'FACTS': {
@@ -71,7 +71,7 @@ SQL_CONTEXT = {
                                 sum 
                             )
                     select biy.id, lt.id, d.id, ry.id, is_vip, raw.sum
-                    from acheryabkin.diplom_payment_report_tmp_{{ execution_date.year }} raw
+                    from acheryabkin.diplom1_payment_report_tmp_{{ execution_date.year }} raw
                     join acheryabkin.diplom_payment_report_dim_billing_year biy on raw.billing_year = biy.billing_year_key
                     join acheryabkin.diplom_payment_report_dim_legal_type lt on raw.legal_type = lt.legal_type_key
                     join acheryabkin.diplom_payment_report_dim_district d on raw.district = d.district_key
